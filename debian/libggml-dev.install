@@ -1,0 +1,5 @@
+usr/lib/${DEB_HOST_MULTIARCH}/libggml.so
+usr/lib/${DEB_HOST_MULTIARCH}/libggml-base.so
+usr/include
+usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
+usr/lib/${DEB_HOST_MULTIARCH}/cmake

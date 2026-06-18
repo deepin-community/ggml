@@ -1,5 +1,475 @@
-template-repository (1.0-1) unstable; urgency=medium
+ggml (0.15.1-1) unstable; urgency=medium
 
-  * Initial release
+  * New upstream version 0.15.1
 
- -- Tsic404 <liuheng@deepin.org>  Sat, 28 Jan 2023 13:46:49 +0800
+ -- Christian Kastner <ckk@debian.org>  Fri, 12 Jun 2026 16:59:12 +0200
+
+ggml (0.15.0-1) unstable; urgency=medium
+
+  * New upstream version 0.15.0
+    - Refresh patches
+  * Update libggml0.symbols with new symbols
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 11 Jun 2026 20:01:49 +0200
+
+ggml (0.14.0-1) unstable; urgency=medium
+
+  * New upstream version 0.14.0
+    - Refresh patches
+
+ -- Christian Kastner <ckk@debian.org>  Mon, 08 Jun 2026 12:54:48 +0200
+
+ggml (0.13.1-1) unstable; urgency=medium
+
+  * New upstream version 0.13.1
+    - Refresh patches
+  * Update libggml0.symbols with new symbols
+  * CUDA, vendor CUDA: Fix upper bound of dependency relationship
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 29 May 2026 18:52:46 +0200
+
+ggml (0.12.0-2) unstable; urgency=medium
+
+  * Also adjust pkg-config path for ggml-cuda
+  * Tighten down CUDA backend dependencies to exact Debian version
+  * Rename src:ggml-vendor-cuda-13-2 to src:ggml-vendor-cuda
+  * vendor-cuda: Base dependencies on SONAME, not package name
+  * CUDA: Drop redundant Section from binary package
+
+ -- Christian Kastner <ckk@debian.org>  Wed, 27 May 2026 09:23:28 +0200
+
+ggml (0.12.0-1) unstable; urgency=medium
+
+  * New upstream version 0.12.0
+    - Refresh patches
+  * Adapt to updated pkg-config installation paths
+
+ -- Christian Kastner <ckk@debian.org>  Sun, 17 May 2026 13:06:21 +0200
+
+ggml (0.11.0-1) unstable; urgency=medium
+
+  * New upstream version 0.11.0
+    - Refresh patches
+  * Add new symbol to libggml0.symbols
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 08 May 2026 09:33:13 +0200
+
+ggml (0.10.2-1) unstable; urgency=medium
+
+  * New upstream version 0.10.2
+  * Properly disable Salsa CI on non-official branches
+
+ -- Christian Kastner <ckk@debian.org>  Sat, 02 May 2026 21:39:37 +0200
+
+ggml (0.10.0-2) unstable; urgency=medium
+
+  [ Talha Can Havadar ]
+  * d/rules: set symbols check level to 4
+  * debian/libggml0.symbols: fix incorrect version for ggml_backend_is_meta
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 23 Apr 2026 20:01:40 +0200
+
+ggml (0.10.0-1) unstable; urgency=medium
+
+  * New upstream version 0.10.0
+    - Refresh patches
+  * Add spirv-headers to Build-Depends (for Vulkan)
+  * Update libggml0.symbols with new symbols
+  * Bump Standards-Version to 4.7.4 (no changes needed)
+
+ -- Christian Kastner <ckk@debian.org>  Tue, 21 Apr 2026 18:20:05 +0200
+
+ggml (0.9.11-1) unstable; urgency=medium
+
+  * New upstream version 0.9.11
+    - Refresh patches
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 02 Apr 2026 10:44:53 +0200
+
+ggml (0.9.10-1) unstable; urgency=medium
+
+  [ Christian Kastner ]
+  * New upstream version 0.9.10. (Closes: #1128237)
+    - Drop patches included upstream
+    - Drop obsolete patches
+    - Refresh patches
+  * Re-add riscv64 to backends with runtime feature detection
+  * Update d/copyright
+  * vendor-cuda: Place binaries in their own archive component
+  * Rename vendor-cuda doc
+  * Add newly appeared symbols to libggml0.symbols
+
+  [ Mathieu Baudier ]
+  * Add more details to the CUDA vendor installation doc
+
+ -- Christian Kastner <ckk@debian.org>  Wed, 01 Apr 2026 18:06:39 +0200
+
+ggml (0.9.8-3) unstable; urgency=medium
+
+  [ Mathieu Baudier ]
+  * Implement src:ggml-vendor-cuda-*
+    This builds the CUDA backend using NVIDIA's CUDA distribution, rather than
+    nvidia-cuda-toolkit in Debian
+
+  [ Christian Kastner ]
+  * Revert back to minimal build on riscv64. (Closes: #1132000)
+  * autopkgtest: Temporarily add pseudo-test to collect system information
+  * Add Mathieu to Uploaders
+  * Drop Rules-Requires-Root: No, default since trixie
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 27 Mar 2026 20:56:28 +0100
+
+ggml (0.9.8-2) unstable; urgency=medium
+
+  * Add patch attempting workaround for ci.debian.net
+  * Add patch resolving FTBFS on riscv64 (Closes: #1131762)
+  * Re-add riscv64 to backends with runtime feature detection
+  * Introduce build profiles to disable BLAS or Vulkan
+  * Drop Conflicts between Vulkan and HIP/CUDA
+
+ -- Christian Kastner <ckk@debian.org>  Wed, 25 Mar 2026 09:37:24 +0100
+
+ggml (0.9.8-1) unstable; urgency=medium
+
+  * New upstream version 0.9.8
+  * Drop patches included upstream
+  * Refresh patches
+  * Add newly appeared symbols to libggml0.symbols
+
+ -- Christian Kastner <ckk@debian.org>  Sat, 21 Mar 2026 07:38:30 +0100
+
+ggml (0.9.7-2) unstable; urgency=medium
+
+  [ Christian Kastner ]
+  * Bump copyrights
+  * Update patch metadata
+
+  [ Talha Can Havadar ]
+  * d/p/force-no-lto-for-cpu-feats.patch: fix ppc64el fail with lto
+
+ -- Christian Kastner <ckk@debian.org>  Tue, 17 Feb 2026 18:01:04 +0100
+
+ggml (0.9.7-1) unstable; urgency=medium
+
+  * New upstream version 0.9.7
+
+ -- Christian Kastner <ckk@debian.org>  Sun, 15 Feb 2026 21:55:10 +0100
+
+ggml (0.9.6-4) unstable; urgency=medium
+
+  * CUDA backend: drop ppc64el as a supported architecture
+    ppc64el is no longer a CUDA architecture.
+  * CUDA backend: Fix build number
+  * Let libggml0-backend-vulkan suggest drivers
+  * Add helper for running tests on GPUs
+  * autopkgtest:
+    - Remove unnecessary indirections
+    - Re-enable HIP tests
+    - Add CUDA tests
+    - Add Vulkan tests
+    - Simplify test names
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 12 Feb 2026 10:07:50 +0100
+
+ggml (0.9.6-3) unstable; urgency=medium
+
+  * Add another workaround for ROCm on trixie
+
+ -- Christian Kastner <ckk@debian.org>  Sun, 08 Feb 2026 10:10:41 +0100
+
+ggml (0.9.6-2) unstable; urgency=medium
+
+  * libggml0.symbols: Add new symbols from 0.9.6
+
+ -- Christian Kastner <ckk@debian.org>  Sat, 07 Feb 2026 19:18:56 +0100
+
+ggml (0.9.6-1) unstable; urgency=medium
+
+  * New upstream version 0.9.6
+  * Refresh patches
+
+ -- Christian Kastner <ckk@debian.org>  Sat, 07 Feb 2026 10:56:19 +0100
+
+ggml (0.9.5-6) unstable; urgency=medium
+
+  * Update ROCm downgrade patch to fix init in trixie
+  * Add patch debian/patches/Use-only-CPU-backend-in-build-time-tests.patch
+
+ -- Christian Kastner <ckk@debian.org>  Tue, 03 Feb 2026 23:12:30 +0100
+
+ggml (0.9.5-5) unstable; urgency=medium
+
+  * More updates to the ROCm 5.5 downgrade patch
+    Fix a FTBFS with gfx110n as a target
+
+ -- Christian Kastner <ckk@debian.org>  Tue, 03 Feb 2026 07:02:24 +0100
+
+ggml (0.9.5-4) unstable; urgency=medium
+
+  * Drop Priority field overlooked in previous release
+  * More updates to the ROCm 5.5 downgrade patch
+
+ -- Christian Kastner <ckk@debian.org>  Sun, 01 Feb 2026 21:01:08 +0100
+
+ggml (0.9.5-3) unstable; urgency=medium
+
+  * CUDA: Adapt not-installed list to new library locations
+  * Bump Standards-Version to 4.7.3
+    - Drop Priority: optional, it's the dpkg default since trixie
+  * Bump copyrights
+
+ -- Christian Kastner <ckk@debian.org>  Sun, 11 Jan 2026 16:46:07 +0100
+
+ggml (0.9.5-2) unstable; urgency=medium
+
+  * Temporarily revert riscv64 to minimal feature flags (Closes: #1124644)
+
+ -- Christian Kastner <ckk@debian.org>  Mon, 05 Jan 2026 08:28:48 +0100
+
+ggml (0.9.5-1) unstable; urgency=medium
+
+  [ Christian Kastner ]
+  * Create d/NEWS, announcing the move to a public library
+  * Drop RPATH from now public libraries
+  * Drop patches obsoleted by upstream introduction of SOVERSION
+  * Update package descriptions, dropping the hint to private
+  * Lower dependency on libamdhip64-dev to the fixed deb13u1 version
+  * Re-enable dh_makeslibs
+  * Start tracking symbols in d/libggml0.symbols
+  * Switch riscv64 to runtime feature detection
+  * d/copyright: Drop the hint to private
+  * Set GGML_BUILD_VERSION to Debian revision
+  * Refresh d/copyright
+
+  [ Mathieu Baudier ]
+  * New upstream version 0.9.5.
+  * Install libraries and headers to public paths. (Closes: #1117476)
+
+ -- Christian Kastner <ckk@debian.org>  Sat, 03 Jan 2026 11:54:28 +0100
+
+ggml (0.9.4-7) unstable; urgency=medium
+
+  * Re-enable the HIP backend
+  * Merge libggml0-backend-cpu into libggml0
+  * Drop CUDA backend, now built by src:ggml-cuda
+  * Re-incorporate src:ggml -> src:ggml-cuda transformation
+  * Fix backend version enforcment
+    The version on the Suggests is ineffective. We need to enforce version
+    equality through a Depends on the backends, which overrides the
+    dependency that ${shlibs:Depends} will generate.
+  * Suggest libggml0-backend-cuda
+  * Enable build-time tests
+  * Salsa CI: Use pkg.ggml.minhip build profile
+
+ -- Christian Kastner <ckk@debian.org>  Tue, 23 Dec 2025 14:18:56 +0100
+
+ggml (0.9.4-6) unstable; urgency=medium
+
+  * Move pkgconfig to multi-arch aware location.
+    This was an oversight when in the Great Reorganization of the llama.cpp
+    and ggml packages, leading to a multi-arch file conflict.
+
+ -- Christian Kastner <ckk@debian.org>  Tue, 09 Dec 2025 16:44:17 +0100
+
+ggml (0.9.4-5) unstable; urgency=medium
+
+  * Also disable autopkgtests for temporarily disabled HIP backend
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 04 Dec 2025 11:15:47 +0100
+
+ggml (0.9.4-4) unstable; urgency=medium
+
+  [ Christian Kastner ]
+  * Temporarily disable the HIP backend in unstable, until the ROCm stack has
+    stabilized again
+  * Introduce a build profile for single AMD GPU target, to enable reducing
+    Salsa load
+
+  [ Cordell Bloor ]
+  * Drop HIP backend for ppc64el
+  * Use default CMAKE_HIP_COMPILER as detected by CMake
+
+ -- Christian Kastner <ckk@debian.org>  Wed, 03 Dec 2025 22:49:02 +0100
+
+ggml (0.9.4-3) unstable; urgency=medium
+
+  * d/rules: Don't hardcode clang version. Resolves a FTBFS
+
+ -- Christian Kastner <ckk@debian.org>  Sun, 19 Oct 2025 23:00:07 +0200
+
+ggml (0.9.4-2) unstable; urgency=medium
+
+  [ Aurelien Jarno ]
+  * Disable zicbop and zfh on riscv64.
+    They are not part of our baseline. (Closes: #1117633)
+
+ -- Christian Kastner <ckk@debian.org>  Sun, 19 Oct 2025 21:09:32 +0200
+
+ggml (0.9.4-1) unstable; urgency=medium
+
+  * New upstream version 0.9.4. (Closes: #1116954)
+    - Drop patches included upstream
+    - Refresh patches
+  * Convert d/watch to version 5
+  * Drop hwcaps from private directories patch
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 02 Oct 2025 22:43:39 +0200
+
+ggml (0.0~git20250712.d62df60-5) unstable; urgency=medium
+
+  * For architectures that don't yet support GGML_CPU_ALL_VARIANTS, disable
+    all features not supported by our baseline spec.
+    Thanks to Aurelien for the pointer. (Closes: #1114747)
+
+ -- Christian Kastner <ckk@debian.org>  Tue, 09 Sep 2025 19:17:03 +0200
+
+ggml (0.0~git20250712.d62df60-4) unstable; urgency=medium
+
+  * Re-enable loong64, ppc64, riscv64, s390x builds.
+    These don't support GGML_CPU_ALL_VARIANTS yet, so we build them without
+    any flags enabled. Performance will suffer. I intend to submit fixes for
+    this upstream.
+  * Bump pkg-rocm-tools dependency
+
+ -- Christian Kastner <ckk@debian.org>  Sun, 07 Sep 2025 13:28:42 +0200
+
+ggml (0.0~git20250712.d62df60-3) unstable; urgency=medium
+
+  [ Otto Kekäläinen ]
+    Disable the two permanently failing jobs on Salsa CI
+
+  [ Christian Kastner ]
+  * Limit architectures to those with ALL_VARIANTS support.
+    Support for loong64, riscv64, and s390x will be added soon
+  * Salsa: Correct typo in DEB_BUILD_PROFILES
+  * Salsa: Build the HIP package only for one GPU, to reduce build time
+  * autopkgtest: Correct test dependency names
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 28 Aug 2025 22:27:09 +0200
+
+ggml (0.0~git20250712.d62df60-2) unstable; urgency=medium
+
+  * Upload to unstable
+  * Fix/improve package descriptions
+  * Make GPU-specific backends conflict with Vulkan backend
+  * Use rocm-target-arch to select and document build GPU arch
+
+ -- Christian Kastner <ckk@debian.org>  Wed, 27 Aug 2025 06:59:59 +0200
+
+ggml (0.0~git20250712.d62df60-2~exp2) experimental; urgency=medium
+
+  * CUDA backend is in section contrib/libs
+  * Extend Breaks/Replaces to libggml-dev
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 07 Aug 2025 18:27:49 +0200
+
+ggml (0.0~git20250712.d62df60-2~exp1) experimental; urgency=medium
+
+  * Switch build to GGML_BACKEND_DL=ON (backends as plugins)
+  * Add SOVER, and rename packages to match SONAME and plugin status
+  * Build the CUDA backend via Build-Profiles
+  * Add Add-soversion-to-libraries.patch
+  * Generate GGML_BUILD_NUMBER based on upstream date
+  * Change Section field to 'libs'
+  * Factor out a -dev package
+  * New layout Breaks/Replaces old layout
+  * d/rules: Don't create ldconfig triggers for private libraries
+  * Salsa-CI: disable HIP build
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 07 Aug 2025 10:56:50 +0200
+
+ggml (0.0~git20250712.d62df60-1) unstable; urgency=medium
+
+  * New upstream version 0.0~git20250712.d62df60
+  * Add missing bug# to previous changelog entry
+  * d/gbp.conf: Fix upstream branch name
+  * Update d/copyright
+
+ -- Christian Kastner <ckk@debian.org>  Sat, 12 Jul 2025 17:10:22 +0200
+
+ggml (0.0~git20250711.b6d2ebd-1) unstable; urgency=medium
+
+  * New upstream version 0.0~git20250711.b6d2ebd
+    - Includes a fix for CVE-2025-53630. (Closes: #1109124)
+  * Drop obsolete patches
+  * Fix broken relation (typo) in CUDA build
+  * d/gbp.conf: Convert to DEP-14 layout
+  * d/gbp.conf: Enforce non-numbered patches
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 11 Jul 2025 23:01:14 +0200
+
+ggml (0.0~git20250618.9e4bee1-2) unstable; urgency=medium
+
+  * Provide versioned libggml-backend (thanks, Rongrong)
+    Recent llama.cpp depends on it. (Closes: #1108401)
+  * Document that ggml-cuda's changelog must be copied back
+  * Sync back d/changelog.cuda
+  * Document ggml/llama.cpp/whisper.cpp update procedure
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 27 Jun 2025 21:27:44 +0200
+
+ggml (0.0~git20250618.9e4bee1-1) unstable; urgency=medium
+
+  * New upstream release.
+    - Refresh patches
+    - Update d/copyright
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 20 Jun 2025 10:48:39 +0200
+
+ggml (0.0~git20250502.17733de-4) unstable; urgency=medium
+
+  * Install tests to multi-arch destinations
+    libggml must rename Multi-Arch: same for now, so the arch-specific tests
+    need to go to arch-specific destinations
+  * Add missing ${shlibs:Depends} to libggml
+  * d/rules: Fix misspelled option
+  * d/rules: Minor beautifying
+  * Update README.Source
+  * Let cudabuild.sh copy all recent changelog entries
+  * autopkgtest: libggml-cpu tests aren't skippable
+
+ -- Christian Kastner <ckk@debian.org>  Wed, 18 Jun 2025 21:27:48 +0200
+
+ggml (0.0~git20250502.17733de-3) unstable; urgency=medium
+
+  * Amend missing build profile in HIP B-D
+  * Add patches enabling installation of tests
+  * Convert libggml from arch:all to arch:any
+  * Ship upstream tests, add autopkgtests
+  * Tighten inter-package dependencies
+  * Add ggml-cuda's d/changelog.cuda
+  * Add comment on ggml-cuda to d/copyright
+  * Enable Salsa CI
+
+ -- Christian Kastner <ckk@debian.org>  Mon, 09 Jun 2025 20:54:26 +0200
+
+ggml (0.0~git20250502.17733de-2) unstable; urgency=medium
+
+  * Implement CUDA build, based on Mo Zhou's approach
+
+ -- Christian Kastner <ckk@debian.org>  Mon, 12 May 2025 23:38:33 +0200
+
+ggml (0.0~git20250502.17733de-1) unstable; urgency=medium
+
+  * Upload to unstable.
+
+  * New upstream version 0.0~git20250502.17733de
+    - Drop cmake-Make-SSE4.2-optional.patch
+  * Update d/copyright pattern
+  * Add Build-Profile pkg.ggml.nohip to skip HIP build
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 09 May 2025 08:35:26 +0200
+
+ggml (0.0~git20250414.be935ac-5) experimental; urgency=medium
+
+  * Limit HIP B-D to amd64 arm64 ppc64el.
+    Needed by libggml-hip which is already limited to these architectures,
+    so this was just an oversight.
+
+ -- Christian Kastner <ckk@debian.org>  Mon, 21 Apr 2025 17:02:07 +0200
+
+ggml (0.0~git20250414.be935ac-4) experimental; urgency=medium
+
+  * Initial release (Closes: #1096105)
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 18 Apr 2025 16:53:25 +0200

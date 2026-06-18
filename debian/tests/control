@@ -1,0 +1,44 @@
+Test-Command: debian/tests/system-info
+Features: test-name=system-info
+
+Test-Command: /usr/libexec/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/ggml/test-backend-ops -b CPU
+Features: test-name=backend-cpu
+Depends: libggml0
+Restrictions: allow-stderr
+
+Test-Command: /usr/libexec/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/ggml/test-backend-ops -b BLAS
+Features: test-name=backend-blas
+Depends: libggml0-backend-blas, libopenblas0-pthread
+Restrictions: allow-stderr
+
+Test-Command: debian/tests/gpuisol-test-launcher amd
+              /usr/libexec/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/ggml/test-backend-ops -b ROCm0
+Features: test-name=backend-hip
+Architecture: amd64 arm64
+Classes: amd-gpu
+Depends: libggml0-backend-hip
+Restrictions: skippable, allow-stderr
+
+Test-Command: debian/tests/gpuisol-test-launcher amd
+              /usr/libexec/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/ggml/test-backend-ops -b Vulkan0
+Features: test-name=backend-vulkan-amd
+Architecture: amd64 arm64
+Classes: amd-gpu
+Depends: libggml0-backend-vulkan, mesa-vulkan-drivers
+Restrictions: skippable, allow-stderr
+
+Test-Command: debian/tests/gpuisol-test-launcher nvidia
+              /usr/libexec/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/ggml/test-backend-ops -b CUDA0
+Features: test-name=backend-cuda
+Architecture: amd64 arm64
+Classes: nvidia-gpu
+Depends: libggml0-backend-cuda
+Restrictions: skippable, allow-stderr, skip-not-installable
+
+Test-Command: debian/tests/gpuisol-test-launcher nvidia
+              /usr/libexec/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/ggml/test-backend-ops -b Vulkan0
+Features: test-name=backend-vulkan-nvidia
+Architecture: amd64 arm64
+Classes: nvidia-gpu
+Depends: libggml0-backend-vulkan, nvidia-vulkan-icd
+Restrictions: skippable, allow-stderr, skip-not-installable

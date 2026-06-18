@@ -1,4 +1,81 @@
 #!/usr/bin/make -f
+#export DH_VERBOSE = 1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
+# For DEB_VERSION
+include /usr/share/dpkg/pkg-info.mk
+
+
+# GGML_NATIVE:ON corresponds to -march=native
+CMAKE_OPTS  = -DGGML_NATIVE=OFF \
+              -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DGGML_BUILD_NUMBER=$(DEB_VERSION) \
+              -DGGML_BUILD_TESTS=ON \
+              -DGGML_BUILD_EXAMPLES=OFF \
+              -DGGML_INSTALL_TESTS=ON \
+              -DGGML_BACKEND_DL=ON \
+              -DGGML_BACKEND_DIR=/usr/lib/${DEB_HOST_MULTIARCH}/ggml/backends0
+
+#
+# See debian/README.Source
+#
+
+## CPU ##
+# Build all CPU variants where supported
+ifneq ($(filter $(DEB_HOST_ARCH),amd64 arm64 ppc64el riscv64),)
+CMAKE_OPTS += -DGGML_CPU_ALL_VARIANTS=ON
+# Disable all features where all CPU variants are not supported
+else ifeq ($(DEB_HOST_ARCH),loong64)
+CMAKE_OPTS += -DGGML_LASX=OFF
+else ifeq ($(DEB_HOST_ARCH),s390x)
+CMAKE_OPTS += -DGGML_VXE=OFF \
+              -DGGML_NNPA=OFF
+endif ## CPU ##
+
+
+## BLAS ##
+ifeq ($(filter pkg.ggml.noblas,$(DEB_BUILD_PROFILES)),)
+CMAKE_OPTS += -DGGML_BLAS=ON
+endif ## BLAS ##
+
+
+## Vulkan ##
+ifeq ($(filter pkg.ggml.novulkan,$(DEB_BUILD_PROFILES)),)
+CMAKE_OPTS += -DGGML_VULKAN=ON
+endif ## Vulkan ##
+
+
+## HIP ##
+ifneq ($(filter $(DEB_HOST_ARCH),amd64 arm64),)
+ifeq ($(filter pkg.ggml.nohip,$(DEB_BUILD_PROFILES)),)
+BACKEND_HIP_ACTIVATED = 1
+
+# Salsa currently does not allow passing in arbitrary envvars to the build, so
+# we must activate this via a build profile
+ifneq ($(filter pkg.ggml.minhip,$(DEB_BUILD_PROFILES)),)
+export ROCM_TARGET_ARCH_FIXED=gfx1030
+endif
+
+CMAKE_OPTS += -DGGML_HIP=ON -DCMAKE_HIP_ARCHITECTURES="$(shell rocm-target-arch --sep ';')"
+endif
+endif ## HIP ##
+
 
 %:
-	dh $@
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(CMAKE_OPTS)
+
+# dwz doesn't fully support DWARF-5 yet, see #1016936
+# The HIP build produces DWARF-5 stuff
+override_dh_dwz:
+	:
+
+override_dh_gencontrol:
+ifdef BACKEND_HIP_ACTIVATED
+	dh_gencontrol -- -Vrocm:GPU-Architecture="$(shell rocm-target-arch)"
+else
+	dh_gencontrol
+endif

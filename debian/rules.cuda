@@ -1,0 +1,45 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE = 1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# For DEB_VERSION
+include /usr/share/dpkg/pkg-info.mk
+
+
+# GGML_NATIVE:ON corresponds to -march=native
+CMAKE_OPTS  = -DGGML_NATIVE=OFF \
+              -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DGGML_BUILD_NUMBER=$(DEB_VERSION) \
+              -DGGML_BUILD_TESTS=OFF \
+              -DGGML_BUILD_EXAMPLES=OFF \
+              -DGGML_INSTALL_TESTS=OFF \
+              -DGGML_BACKEND_DL=ON \
+              -DGGML_BACKEND_DIR=/usr/lib/${DEB_HOST_MULTIARCH}/ggml/backends0
+
+## CUDA ##
+CMAKE_OPTS += -DGGML_CPU=OFF \
+	      -DGGML_CUDA=ON
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(CMAKE_OPTS)
+
+override_dh_auto_install:
+	# We don't want dh's single-binary mode to install everything directly
+	# to the package, as we only want a single file
+	dh_auto_install --destdir=debian/tmp
+
+# No tests for now, needs GPU
+override_dh_auto_test:
+	:
+
+# dwz doesn't fully support DWARF-5 yet, see #1016936
+# The HIP build produces DWARF-5 stuff
+override_dh_dwz:
+	:
+
+override_dh_makeshlibs:
+	# Libraries are private
+	dh_makeshlibs --no-scripts

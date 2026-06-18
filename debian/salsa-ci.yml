@@ -1,0 +1,24 @@
+# This is a template from
+# https://salsa.debian.org/salsa-ci-team/pipeline/-/raw/master/recipes/salsa-ci.yml
+#
+# If this pipeline is not running at after committing and pushing this file,
+# ensure that https://salsa.debian.org/%{project_path}/-/settings/ci_cd has in
+# field "CI/CD configuration file" filename "debian/salsa-ci.yml".
+#
+# Feel free disable and enable tests to find a good balance between extensive
+# coverage and having a consistently green pipeline where failures are rare
+# enough that they are always investigated and addressed. For documeenation
+# please read https://salsa.debian.org/salsa-ci-team/pipeline
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/recipes/debian.yml
+
+# i386 build never works (in fact, all 32-bit builds don't work)
+# For HIP, we build the minimal profile targing one arch, to conserve resources
+variables:
+  SALSA_CI_DISABLE_BUILD_PACKAGE_I386: 1 # only 64-bit supported
+  SALSA_CI_DISABLE_BLHC: 1  # Fails on CPPFLAGS missing (-D_FORTIFY_SOURCE=2)
+  SALSA_CI_DISABLE_REPROTEST: 1  # Too large build, times out on Salsa runners
+  SALSA_CI_DISABLE_CCACHE: 1 # Fails on debrebuild because ccache presence is logged
+  SALSA_CI_IGNORED_BRANCHES: 'llama\.cpp-dev/.*'
+  DEB_BUILD_PROFILES: pkg.ggml.minhip
