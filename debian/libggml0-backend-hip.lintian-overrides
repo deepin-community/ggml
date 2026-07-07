@@ -1,0 +1,2 @@
+# Needed by the Debian ROCm Team
+libggml0-backend-hip: unknown-field X-Rocm-Gpu-Architecture

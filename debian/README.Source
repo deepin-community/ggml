@@ -1,0 +1,28 @@
+Build Profiles
+==============
+
+This package supports a number of build profiles:
+
+pkg.ggml.noblas:   Disable the BLAS backend build
+pkg.ggml.novulkan: Disable the Vulkan backend build
+pkg.ggml.nohip:    Disable the HIP build (very time consuming)
+pkg.ggml.minhip:   Build HIP only for gfx1030, saves time, useful for Salsa CI
+                   (only active if pkg.ggml.nohip is inactive)
+
+
+src:ggml-cuda
+=============
+
+The source package src:ggml can be converted to src:ggml-cuda (for building the
+CUDA backend) by running the debian/cudabuild.sh in an unpacked source tree.
+Note that you'll need to rename the .orig.tar.gz from ggml_ to ggml-cuda_
+before building anything.
+
+
+src:ggml-vendor-cuda-xx-y
+=======================
+
+In order to build against the Nvidia provided packages,
+the process is similar as for src:ggml-cuda, that is
+running debian/cudabuild-nvidia-cuda-xx-y.sh before building
+(xx being the major CUDA version and y the minor CUDA version).

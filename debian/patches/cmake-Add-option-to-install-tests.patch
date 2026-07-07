@@ -1,0 +1,42 @@
+From: Christian Kastner <ckk@debian.org>
+Date: Sun, 18 May 2025 12:16:06 +0200
+Subject: cmake: Add option to install tests
+
+Forwarded: not-needed
+---
+ CMakeLists.txt       |  1 +
+ tests/CMakeLists.txt | 12 ++++++++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0406978..49621ba 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -276,6 +276,7 @@ option(ZENDNN_ROOT                          "ggml: path to ZenDNN installation"
+ 
+ # extra artifacts
+ option(GGML_BUILD_TESTS    "ggml: build tests"    ${GGML_STANDALONE})
++option(GGML_INSTALL_TESTS  "ggml: install tests"  OFF)
+ option(GGML_BUILD_EXAMPLES "ggml: build examples" ${GGML_STANDALONE})
+ 
+ #
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 7c28e34..7a69ea8 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -354,3 +354,15 @@ if (NOT GGML_BACKEND_DL)
+     add_test(NAME ${TEST_TARGET} COMMAND $<TARGET_FILE:${TEST_TARGET}>)
+     set_property(TEST ${TEST_TARGET} PROPERTY ENVIRONMENT "LLVM_PROFILE_FILE=${TEST_TARGET}.profraw")
+ endif()
++
++
++#
++# Optional: install tests
++if (GGML_INSTALL_TESTS)
++    get_property(ALL_TEST_TARGETS DIRECTORY PROPERTY TESTS)
++    message(WARNING "All tests: ${ALL_TEST_TARGETS}")
++
++    foreach(TEST_TARGET ${ALL_TEST_TARGETS})
++        install(TARGETS ${TEST_TARGET} RUNTIME DESTINATION bin)
++    endforeach()
++endif()

@@ -1,0 +1,276 @@
+#!/bin/bash
+# Helper for running tests on GPUs
+#
+# Author: Christian Kastner <ckk@kvr.at>
+# License: MIT
+
+usage() {
+    cat >&2 <<"EOF"
+usage: gpuisol-test-launcher [options] VENDOR CMD [ARGS ...]
+
+Checks for availability of and access to a GPU from VENDOR, runs the test, and
+exits with the exit code of the test, or with exit code 77 (which autopkgtest
+interprets as "skipped") if no GPU was found. Optionally exports some system
+data as autopkgtest artifacts.
+
+VENDOR can currently be either 'amd' or 'nvidia'.
+
+Use this helper to skip tests on ci.debian.net (which doesn't support GPUs) but
+have them run on ci.ai.debian.net (which supports various GPUs from AMD and
+NVIDIA), and on ci.rocm.debian.net (which as numerous AMD GPUs).
+
+To run the autopkgtests on your own system, in a QEMU VM or a rootless podman
+container, you will need the utilities provided by package gpuisol-qemu
+resp. gpuisol-podman.
+
+Supported options:
+  -h, --help
+    Print this help
+  --cd-tmp
+    Change directory to AUTOPKGTEST_TMP before executing the test.
+
+Supported environment variables:
+  GPUISOL_TEST_LANCHER_WITH_DMESG
+    If set, export dmesg before and after the test as an autopkgtest artifact.
+    The user in the testbed must have access to dmesg, so either the user needs
+    to be privileged, or dmesg must not be restricted. Restriction can be
+    lifted with sudo `sysctl kernel.dmesg_restrict=0`.
+  GPUISOL_TEST_LAUNCHER_WITH_AMD_DRI[=PATH]
+    If set, export firmware and possibly other GPU-specific information as an
+    autopkgtest artifact. The user in the testbed must have access to
+    "/sys/kernel/debug/dri/", which requires privileges. Alternatively, one
+    can bind-mount that directory to some user-readable path, eg:
+    `mount --bind /sys/kernel/debug/dri /tmp/foo`, and pass that path as
+    GPUISOL_TEST_LAUNCHER_WITH_AMD_DRI=/tmp/foo.
+  GPUISOL_TEST_LAUNCHER_WITH_AMD_ROCMINFO
+    If set, export the output of `rocminfo` as an autopkgtest artifact.
+
+Examples for d/tests/control, for a test with an AMD GPU:
+  Simple:
+    Test-Command: gpuisol-test-launcher amd testRunner --verbose --skip fooTest
+    Depends: @, gpuisol-test-launcher
+    Restrictions: skippable
+    Architecture: amd64 arm64 ppc64el
+
+  Write your own test runner/wrapper, have gpuisol-test-launcher call it:
+    Test-Command: gpuisol-test-launcher amd debian/tests/my-runner
+    Depends: @, gpuisol-test-launcher
+    Restrictions: skippable
+    Architecture: amd64 arm64 ppc64el
+EOF
+}
+
+vendor=
+opt_cd_tmp=0
+opt_with_dmesg=0
+opt_with_amd_dri=0
+opt_with_amd_rocminfo=0
+dri_path=
+
+# Can't use getopt because it won't stop parsing, but any options after the
+# first positional argument (the test command) aren't for us, they are for
+# the test command
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -h | --help)
+        usage
+        exit 0
+        ;;
+    --cd-tmp)
+        opt_cd_tmp=1
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    -*)
+        echo "$0: unknown option: $1" >&2
+        usage
+        exit 1
+        ;;
+    *)
+        break
+        ;;
+    esac
+done
+
+if [ -z "$1" ]; then
+    echo "Not enough arguments." >&2
+    exit 1
+fi
+case "$1" in
+amd)
+    vendor=amd
+    ;;
+nvidia)
+    vendor=nvidia
+    ;;
+*)
+    echo "Unsupported vendor: $1" >&2
+    exit 1
+    ;;
+esac
+shift
+
+# Test that each variable is actually set (null or not)
+if [ -n "${ROCM_TEST_LAUNCHER_WITH_DMESG+x}" ]; then
+    opt_with_dmesg=1
+fi
+if [ -n "${ROCM_TEST_LAUNCHER_WITH_AMD_DRI+x}" ]; then
+    opt_with_amd_dri=1
+    dri_path="${ROCM_TEST_LAUNCHER_WITH_AMD_DRI}"
+fi
+if [ -n "${ROCM_TEST_LAUNCHER_WITH_AMD_ROCMINFO+x}" ]; then
+    opt_with_amd_rocminfo=1
+fi
+
+if [ "$vendor" = "amd" ]; then
+    if [ ! -e /dev/kfd ]; then
+        echo "/dev/kfd not present, system either lacks AMD GPU or 'amdgpu' driver is not loaded."
+        echo "Skipping tests."
+        # Magic number to signal 'skipped'
+        exit 77
+    elif [ "$(id -u)" != "0" ] && [ ! -r /dev/kfd ]; then
+        echo "/dev/kfd present but no read permission."
+        echo "Skipping tests."
+        exit 77
+    fi
+elif [ "$vendor" = "nvidia" ]; then
+    nvidia_found=0
+    if [ -e /dev/nvidiactl ]; then
+        nvidia_found=1
+    elif [ -x /usr/bin/nvidia-modprobe ] && /usr/bin/nvidia-modprobe -c 0 -u &>/dev/null; then
+        nvidia_found=1
+    elif [ -x /usr/bin/lsmod ] && lsmod | grep -Eq '^nvidia[[:space:]]+'; then
+        nvidia_found=1
+    fi
+    if [ "$nvidia_found" -ne 1 ]; then
+        echo "Either no NVIDIA GPU, or 'nvidia' driver is not loaded."
+        echo "Skipping tests."
+        # Magic number to signal 'skipped'
+        exit 77
+    fi
+fi
+
+# So that we can sort files by creation time
+tstamp() {
+    echo "$(date '+%s.%N')"
+}
+
+check_for_sudo() {
+    local msg
+    msg="$1"
+
+    if ! [ -x /usr/bin/sudo ]; then
+        if [ -n "$msg" ]; then
+            echo "$0: sudo not available; $msg" >&2
+        else
+            echo "$0: sudo not available." >&2
+        fi
+        return 1
+    else
+        return 0
+    fi
+}
+
+save_dmesg() {
+    local phase
+    local outfile
+
+    phase="$1"
+    if [ "$phase" != "before" ] && [ "$phase" != "after" ]; then
+        echo "save_dmesg: unknown phase $phase" >&2
+        exit 2
+    fi
+    outfile="$AUTOPKGTEST_ARTIFACTS/$(tstamp).dmesg.$phase"
+
+    # First, try regular dmesg, which works for root and all systems with
+    # kernel.dmesg_restrict=0
+    dmesg >"$outfile" && return
+
+    check_for_sudo "could not save dmesg" || return 0
+    # shellcheck disable=SC2024   # we don't need privileged write
+    if ! sudo -n dmesg >"$outfile"; then
+        echo "$0: failed to save dmesg." >&2
+    fi
+}
+
+save_amd_firmware() {
+    local dripath
+    local fwinfo
+    local outfile
+    local fwfound
+
+    dripath="${1:-/sys/kernel/debug/dri}"
+
+    fwfound=0
+    if [ -d "$dripath" ]; then
+        for subpath in "$dripath"/*; do
+            index="${subpath##*/}"
+            fwinfo="$subpath/amdgpu_firmware_info"
+            outfile="$AUTOPKGTEST_ARTIFACTS/$(tstamp).amdgpu_firmware_info.$index"
+            if [ -f "$fwinfo" ]; then
+                cat "$fwinfo" >"$outfile"
+                fwfound=1
+            fi
+        done
+    else
+        # directory might be there, we just might not have permission
+        check_for_sudo "could not read firmware info" || return 0
+        if sudo -n [ -d "$dripath" ]; then
+            for subpath in $(sudo -n ls "$dripath"); do
+                index="${subpath##*/}"
+                fwinfo="$subpath/amdgpu_firmware_info"
+                outfile="$AUTOPKGTEST_ARTIFACTS/$(tstamp).amdgpu_firmware_info.$index"
+                if sudo -n [ -f "$fwinfo" ]; then
+                    # shellcheck disable=SC2024  # we don't need privileged write
+                    sudo -n cat "$fwinfo" >"$outfile"
+                    fwfound=1
+                fi
+            done
+        else
+            echo "$0: Cannot access $dripath, cannot query firmware info." >&2
+            return
+        fi
+    fi
+    if [ "$fwfound" -eq 0 ]; then
+        echo "$0: No firmware info found. Is $dripath populated?" >&2
+    fi
+}
+
+save_rocminfo() {
+    # No need to check for sudo here, as we've already verified access to
+    # /dev/kfd, which should be all we need
+    if ! [ -x /usr/bin/rocminfo ]; then
+        echo "$0: rocminfo not available, not saving info." >&2
+        exit 1
+    fi
+    if ! rocminfo >"$AUTOPKGTEST_ARTIFACTS/$(tstamp).rocminfo.txt"; then
+        echo "$0: Could not save rocminfo." >&2
+    fi
+}
+
+### Pre-test ###
+
+# 16 = testbed failure
+if ([ "$opt_with_dmesg" -eq 1 ] \
+    || [ "$opt_with_amd_dri" -eq 1 ] \
+    || [ "$opt_with_amd_rocminfo" -eq 1 ]) && [ -z "$AUTOPKGTEST_ARTIFACTS" ]; then
+    echo "AUTOPKGTEST_ARTIFACTS not set, cannot save requested artifacts." >&2
+    exit 16
+fi
+[ "$opt_cd_tmp" -eq 1 ] && { cd "$AUTOPKGTEST_TMP" || exit 16; }
+[ "$opt_with_dmesg" -eq 1 ] && save_dmesg "before"
+[ "$opt_with_amd_dri" -eq 1 ] && save_amd_firmware "$dri_path"
+[ "$opt_with_amd_rocminfo" -eq 1 ] && save_rocminfo
+
+### Test ###
+
+"$@"
+exitcode=$?
+
+### Post-test ###
+
+[ "$opt_with_dmesg" -eq 1 ] && save_dmesg "after"
+exit $exitcode

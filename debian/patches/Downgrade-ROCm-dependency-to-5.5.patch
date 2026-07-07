@@ -1,0 +1,221 @@
+From: Christian Kastner <ckk@debian.org>
+Date: Sun, 28 Sep 2025 23:05:58 +0200
+Subject: Downgrade ROCm dependency to 5.5
+
+The downgrade is necessary to have this package buildable in trixie and
+in current unstable.
+
+This requires a fixed rocm-hipamd 5.7.1, see
+
+    http://bugs.debian.org/1116585
+
+Furthermore, this patch addresses an issue gfx110n cards in 5.5, and
+with hipblas < 5.6.
+
+Origin: https://github.com/ggml-org/llama.cpp/pull/15296
+Forwarded: not-needed
+Last-Update: 2026-02-17
+---
+ src/ggml-cuda/common.cuh    | 14 +++++++++-----
+ src/ggml-cuda/ggml-cuda.cu  | 32 ++++++++++++++++++++++++++++++++
+ src/ggml-cuda/mma.cuh       |  4 ++--
+ src/ggml-cuda/vendors/hip.h | 42 ++++++++++++++++++++++++++++++++++++++++++
+ src/ggml-hip/CMakeLists.txt |  4 ++--
+ 5 files changed, 87 insertions(+), 9 deletions(-)
+
+diff --git a/src/ggml-cuda/common.cuh b/src/ggml-cuda/common.cuh
+index e6e50e0..1aa5392 100644
+--- a/src/ggml-cuda/common.cuh
++++ b/src/ggml-cuda/common.cuh
+@@ -656,21 +656,25 @@ static __device__ __forceinline__ half ggml_cuda_hmax(const half a, const half b
+ }
+ 
+ static __device__ __forceinline__ half2 ggml_cuda_hmax2(const half2 a, const half2 b) {
+-#if defined(GGML_USE_HIP)
++#if defined(GGML_USE_HIP) && HIP_VERSION >= 50700000
+     return half2(__hmax(a.x, b.x), __hmax(a.y, b.y));
+-#elif CUDART_VERSION >= CUDART_HMAX
++#elif !defined(GGML_USE_HIP) && CUDART_VERSION >= CUDART_HMAX
+     return __hmax2(a, b);
+-#else
++#elif !defined(GGML_USE_HIP)
+     half2 ret;
+     reinterpret_cast<half&>(ret.x) = __float2half(fmaxf( __low2float(a),  __low2float(b)));
+     reinterpret_cast<half&>(ret.y) = __float2half(fmaxf(__high2float(a), __high2float(b)));
+     return ret;
++#else
++    GGML_UNUSED(a);
++    GGML_UNUSED(b);
++    NO_DEVICE_CODE;
+ #endif
+ }
+ 
+ template<int width = WARP_SIZE>
+ static __device__ __forceinline__ half2 warp_reduce_max(half2 x) {
+-#if !defined(GGML_USE_HIP) && __CUDA_ARCH__ >= GGML_CUDA_CC_PASCAL || defined(GGML_USE_HIP)
++#if !defined(GGML_USE_HIP) && __CUDA_ARCH__ >= GGML_CUDA_CC_PASCAL || (defined(GGML_USE_HIP) && HIP_VERSION >= 50700000)
+ #pragma unroll
+    for (int offset = width/2; offset > 0; offset >>= 1) {
+        x = ggml_cuda_hmax2(x, __shfl_xor_sync(0xffffffff, x, offset, width));
+@@ -679,7 +683,7 @@ static __device__ __forceinline__ half2 warp_reduce_max(half2 x) {
+ #else
+    GGML_UNUSED(x);
+    NO_DEVICE_CODE;
+-#endif // !defined(GGML_USE_HIP) && __CUDA_ARCH__ >= GGML_CUDA_CC_PASCAL || defined(GGML_USE_HIP)
++#endif // !defined(GGML_USE_HIP) && __CUDA_ARCH__ >= GGML_CUDA_CC_PASCAL || (defined(GGML_USE_HIP) && HIP_VERSION >= 50700000)
+ }
+ 
+ #if (defined(CUDART_VERSION) && CUDART_VERSION < CUDART_HMASK) || defined(GGML_USE_HIP) || \
+diff --git a/src/ggml-cuda/ggml-cuda.cu b/src/ggml-cuda/ggml-cuda.cu
+index 3d4b5f6..e557946 100644
+--- a/src/ggml-cuda/ggml-cuda.cu
++++ b/src/ggml-cuda/ggml-cuda.cu
+@@ -203,6 +203,38 @@ static int ggml_cuda_parse_id(char devName[]) {
+ #endif // defined(GGML_USE_HIP)
+ 
+ static ggml_cuda_device_info ggml_cuda_init() {
++#if defined(GGML_USE_HIP)
++    // Workaround for a rocBLAS bug when using multiple graphics cards:
++    // https://github.com/ROCmSoftwarePlatform/rocBLAS/issues/1346
++    {
++        int major_version = 0;
++        size_t version_length = 0;
++        if (rocblas_get_version_string_size(&version_length) == rocblas_status_success) {
++            std::vector<char> version(version_length+1, '\0');
++            if (rocblas_get_version_string(version.data(), version.size()) == rocblas_status_success) {
++                version.resize(::strlen(version.data()));
++                int parsed_value = 0;
++                if (std::from_chars(version.data(), version.data() + version.size(), parsed_value).ec == std::errc()) {
++                    major_version = parsed_value;
++                }
++            }
++        }
++        if (major_version < 4) {
++            // On trixie, we need to pre-check for devices, otherwise
++            // rocblas_initialize() aborts
++            int device_count = 0;
++            hipError_t hip_status = hipGetDeviceCount(&device_count);
++            if (hip_status != hipSuccess || device_count == 0) {
++                return ggml_cuda_device_info{};
++            }
++
++            GGML_LOG_DEBUG(GGML_CUDA_NAME " calling rocblas_initialize as a workaround for a rocBLAS bug\n");
++            rocblas_initialize();
++            CUDA_CHECK(cudaDeviceSynchronize());
++        }
++    }
++#endif
++
+     ggml_cuda_device_info info = {};
+ 
+     cudaError_t err = cudaGetDeviceCount(&info.device_count);
+diff --git a/src/ggml-cuda/mma.cuh b/src/ggml-cuda/mma.cuh
+index 8d7c69d..e911be8 100644
+--- a/src/ggml-cuda/mma.cuh
++++ b/src/ggml-cuda/mma.cuh
+@@ -452,7 +452,7 @@ namespace ggml_cuda_mma {
+         }
+ #elif defined(AMD_MFMA_AVAILABLE)
+         static constexpr int ne = tile<I_, J_, half2, DATA_LAYOUT_I_MAJOR>::ne;
+-        nv_bfloat162 x[ne] = {{0.0f, 0.0f}};
++        nv_bfloat162 x[ne] = {};
+ 
+         static constexpr __device__ bool supported() {
+             return tile<I_, J_, half2, DATA_LAYOUT_I_MAJOR>::supported();
+@@ -626,7 +626,7 @@ namespace ggml_cuda_mma {
+         static constexpr data_layout dl = DATA_LAYOUT_I_MAJOR_MIRRORED;
+         static constexpr int         ne = tile<I_, J_, float, DATA_LAYOUT_I_MAJOR_MIRRORED>::ne;
+ 
+-        nv_bfloat162 x[ne] = {{0.0f, 0.0f}};
++        nv_bfloat162 x[ne] = {};
+ 
+         static constexpr __device__ bool supported() {
+             return tile<I_, J_, float, DATA_LAYOUT_I_MAJOR_MIRRORED>::supported();
+diff --git a/src/ggml-cuda/vendors/hip.h b/src/ggml-cuda/vendors/hip.h
+index a6115cd..6c0b75d 100644
+--- a/src/ggml-cuda/vendors/hip.h
++++ b/src/ggml-cuda/vendors/hip.h
+@@ -5,6 +5,12 @@
+ #include <hipblas/hipblas.h>
+ #include <hip/hip_fp16.h>
+ #include <hip/hip_bf16.h>
++// for rocblas_initialize()
++#include "rocblas/rocblas.h"
++#include "hip/hip_runtime.h"
++// for some bugs in hipblas 5.5
++#include "hipblas/hipblas-version.h"
++
+ 
+ #if defined(GGML_HIP_ROCWMMA_FATTN)
+ #include <rocwmma/rocwmma-version.hpp>
+@@ -38,7 +44,16 @@
+ #define __shfl_xor_sync(mask, var, laneMask, width) __shfl_xor(var, laneMask, width)
+ #define __all_sync(mask, var) __all(var)
+ #define __any_sync(mask, var) __any(var)
++// Debian: On trixie with hipblas 5.5, hipBlasStrsmBatched is broken in that
++// the ninth parameter is not const. This was fixed in hipblas 5.6, with
++// internal version 1.0.0
++// There are more macros affected by this, by they are not used
++#if hipblasVersionMajor >= 1
+ #define cublasStrsmBatched hipblasStrsmBatched
++#else
++#define cublasStrsmBatched(handle, side, uplo, transA, diag, m, n, alpha, A, lda, B, ldb, batchCount) \
++    hipblasStrsmBatched(handle, side, uplo, transA, diag, m, n, alpha, (float *const *)A, lda, B, ldb, batchCount)
++#endif
+ #define cublasCreate hipblasCreate
+ #define cublasDestroy hipblasDestroy
+ #define cublasGemmEx hipblasGemmEx
+@@ -120,7 +135,20 @@
+ #define cudaStreamNonBlocking hipStreamNonBlocking
+ #define cudaStreamPerThread hipStreamPerThread
+ #define cudaStreamSynchronize hipStreamSynchronize
++// Debian: On trixie with hipblas 5.5, hipStreamWaitEvent is broken in that
++// third parameter is always required, rather than having a default.
++// This was fixed in hipblas 5.6, with internal version 1.0.0
++#if hipblasVersionMajor >= 1
+ #define cudaStreamWaitEvent hipStreamWaitEvent
++#else
++#define hipStreamWaitEvent_2param(stream, event)         hipStreamWaitEvent(stream, event, 0)
++#define hipStreamWaitEvent_3param(stream, event, flags)  hipStreamWaitEvent(stream, event, flags)
++// returns hipStreamWaitEvent_2param if __VA_ARGS__ only has two params
++// otherwise returns hipStreamWaitEvent_3param
++#define PICK_BY_ARGS(_1, _2, _3, NAME, ...) NAME
++#define cudaStreamWaitEvent(...) \
++    PICK_BY_ARGS(__VA_ARGS__, hipStreamWaitEvent_3param, hipStreamWaitEvent_2param)(__VA_ARGS__)
++#endif
+ #define cudaGraphExec_t hipGraphExec_t
+ #define cudaGraphNode_t hipGraphNode_t
+ #define cudaKernelNodeParams hipKernelNodeParams
+@@ -302,3 +330,17 @@ static __device__ __forceinline__ unsigned int __vcmpne4(unsigned int a, unsigne
+     }
+     return c;
+ }
++
++#if HIP_VERSION < 50600000
++// __shfl_xor() for half2 was added in ROCm 5.6
++static __device__ __forceinline__ half2 __shfl_xor(half2 var, int laneMask, int width) {
++    typedef union half2_b32 {
++        half2 val;
++        int   b32;
++    } half2_b32_t;
++    half2_b32_t tmp;
++    tmp.val = var;
++    tmp.b32 = __shfl_xor(tmp.b32, laneMask, width);
++    return tmp.val;
++}
++#endif
+diff --git a/src/ggml-hip/CMakeLists.txt b/src/ggml-hip/CMakeLists.txt
+index a7d4e0e..c11a31e 100644
+--- a/src/ggml-hip/CMakeLists.txt
++++ b/src/ggml-hip/CMakeLists.txt
+@@ -51,8 +51,8 @@ if (GGML_HIP_RCCL)
+     find_package(rccl REQUIRED)
+ endif()
+ 
+-if (${hip_VERSION} VERSION_LESS 6.1)
+-    message(FATAL_ERROR "At least ROCM/HIP V6.1 is required")
++if (${hip_VERSION} VERSION_LESS 5.5)
++    message(FATAL_ERROR "At least ROCM/HIP V5.5 is required")
+ endif()
+ 
+ message(STATUS "HIP and hipBLAS found")
