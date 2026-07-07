@@ -1,0 +1,4 @@
+usr/lib/${DEB_HOST_MULTIARCH}/libggml.so.*
+usr/lib/${DEB_HOST_MULTIARCH}/libggml-base.so.*
+usr/lib/${DEB_HOST_MULTIARCH}/ggml/backends0/libggml-cpu*.so
+usr/bin/test*           usr/libexec/${DEB_HOST_MULTIARCH}/ggml/

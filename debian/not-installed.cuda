@@ -1,0 +1,7 @@
+usr/bin/*
+usr/include/*
+usr/lib/*/pkgconfig
+usr/lib/*/cmake
+usr/lib/*/libggml-base.*
+usr/lib/*/libggml.*
+/usr/share/*

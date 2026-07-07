@@ -1,22 +1,133 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: template-repository
-Source: https://github.com/deepin-community/template-repository
+Upstream-Name: ggml
+Source: https://github.com/ggml-org/ggml
+Comment:
+ CUDA
+ ----
+ This source package can be converted to src:ggml-cuda, for building the CUDA
+ backend (a single .so). The source is binary-identical, all that changes is
+ that debian/{control,rules,not-installed) are swapped.
 
 Files: *
-Copyright: 2023 Tsic404 <liuheng@deepin.org>
-License: GPL-2+
- This package is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+Copyright: 2023-2026, The ggml authors
+License: Expat
+
+Files: debian/*
+Copyright: 2025-2026, Christian Kastner <ckk@debian.org>
+           2025-2026, Mathieu Baudier <mbaudier@argeo.org>
+           2025, Mo Zhou <lumin@debian.org>
+License: Expat
+
+Files: examples/stb_image.h
+       examples/stb_image_write.h
+Copyright: Placed in the public domain; alternatively:
+           2017, Sean Barrett
+License: public-domain or Expat
+Comment:
+ ------------------------------------------------------------------------------
+ This software is available under 2 licenses -- choose whichever you prefer.
+ ------------------------------------------------------------------------------
+ ALTERNATIVE A - MIT License
+ ------------------------------------------------------------------------------
+ ALTERNATIVE B - Public Domain (www.unlicense.org)
+ ------------------------------------------------------------------------------
+
+Files: src/ggml-sycl/*
+Copyright: 2024-2025, Intel Corporation
+           2025, Codeplay Software Ltd.
+License: Expat and Apache-2.0 with LLVM exception
+
+Files: src/ggml-cpu/ops.cpp
+       src/ggml-cuda/rope.cu
+       src/ggml-metal/ggml-metal.metal
+       src/ggml-opencl/kernels/rope.cl
+       src/ggml-sycl/rope.cpp
+Copyright: 2023-2024, The ggml authors
+           2023, Jeffrey Quesnelle and Bowen Peng
+License: Expat and Apache-2.0 with LLVM exception
+
+Files: src/ggml-cpu/kleidiai/*
+Copyright: 2025-2026, Arm Limited and/or its affiliates <open-source-office@arm.com>
+License: Expat
+
+Files: src/ggml-cpu/llamafile/sgemm.*
+Copyright: 2024, Mozilla Foundation
+License: Expat
+
+License: public-domain
+ This is free and unencumbered software released into the public domain.
+ Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
+ software, either in source code form or as a compiled binary, for any purpose,
+ commercial or non-commercial, and by any means.
+ In jurisdictions that recognize copyright laws, the author or authors of this
+ software dedicate any and all copyright interest in the software to the public
+ domain. We make this dedication for the benefit of the public at large and to
+ the detriment of our heirs and successors. We intend this dedication to be an
+ overt act of relinquishment in perpetuity of all present and future rights to
+ this software under copyright law.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
  .
- This package is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
  .
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <https://www.gnu.org/licenses/>
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+License: Apache-2.0 with LLVM exception
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
  .
- On Debian systems, the complete text of the GNU General
- Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+ http://www.apache.org/licenses/LICENSE-2.0
+ .
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ .
+ On Debian systems, the complete text of the Apache version 2.0 license
+ can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ ---- LLVM Exceptions to the Apache 2.0 License ----
+ .
+ As an exception, if, as a result of your compiling your source code, portions
+ of this Software are embedded into an Object form of such source code, you
+ may redistribute such embedded portions in such Object form without complying
+ with the conditions of Sections 4(a), 4(b) and 4(d) of the License.
+ .
+ In addition, if you combine or link compiled forms of this Software with
+ software that is licensed under the GPLv2 ("Combined Software") and if a
+ court of competent jurisdiction determines that the patent provision (Section
+ 3), the indemnity provision (Section 9) or other Section of the License
+ conflicts with the conditions of the GPLv2, you may retroactively and
+ prospectively choose to deem waived or otherwise exclude such Section(s) of
+ the License, but only in their entirety and only with respect to the Combined
+ Software.
+ .
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ .
+ On Debian systems, the complete text of the Apache version 2.0 license
+ can be found in "/usr/share/common-licenses/Apache-2.0".

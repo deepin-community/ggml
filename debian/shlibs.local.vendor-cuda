@@ -1,0 +1,3 @@
+libcudart 13 cuda-cudart-13-2 | libcudart.so.13
+libcublas 13 libcublas-13-2 | libcublas.so.13
+libcuda 1 libcuda1 | libcuda.so.1

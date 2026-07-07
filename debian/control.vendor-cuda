@@ -1,0 +1,56 @@
+Source: ggml-vendor-cuda
+Section: vendor-nvidia/libs
+Maintainer: Debian Deep Learning Team <debian-ai@lists.debian.org>
+Uploaders: Christian Kastner <ckk@debian.org>,
+           Mathieu Baudier <mbaudier@argeo.org>,
+Standards-Version: 4.7.4
+Vcs-Browser: https://salsa.debian.org/deeplearning-team/ggml
+Vcs-Git: https://salsa.debian.org/deeplearning-team/ggml.git
+Homepage: https://github.com/ggml-org/ggml
+Build-Depends: cmake,
+               debhelper-compat (= 13),
+               libggml-dev (>= @GGML_DEBIAN_VERSION@),
+               libggml-dev (<< @GGML_DEBIAN_VERSION_PLUS1@~),
+               pkgconf,
+               cuda-nvcc-13-2 | cuda-nvcc-13,
+               libcublas-dev-13-2 | libcublas.so.13-dev,
+               libcuda1 | libcuda.so.1,
+
+Package: libggml0-backend-vendor-cuda-13-2
+Architecture: amd64 arm64
+Multi-Arch: same
+Depends: libggml0-backend-vendor-cuda-13
+Description: Transitional dummy pacakge for libggml0-backend-vendor-cuda-13
+ This is a transitional dummy package. It can safely be removed.
+
+Package: libggml0-backend-vendor-cuda-13
+Architecture: amd64 arm64
+Multi-Arch: same
+Depends: libggml0 (>= @GGML_DEBIAN_VERSION@),
+         libggml0 (<< @GGML_DEBIAN_VERSION_PLUS1@~),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Provides: libggml0-backend (= ${binary:Version}),
+          libggml0-backend-vendor-cuda
+Breaks: libggml0-backend-vendor-cuda-13-2 (<< 0.12.0-2)
+Replaces: libggml0-backend-vendor-cuda-13-2 (<< 0.12.0-2)
+Conflicts: libggml0-backend-cuda
+Description: Tensor library for machine learning - Vendor CUDA 13 backend
+ ggml is a tensor library for machine learning with the following features:
+ .
+  * Low-level cross-platform implementation
+  * Integer quantization support
+  * Broad hardware support
+  * Automatic differentiation
+  * ADAM and L-BFGS optimizers
+  * No third-party dependencies
+  * Zero memory allocations during runtime
+ .
+ On Debian, ggml is shipped as a package that depends on one of the CPU or
+ GPU backends.
+ .
+ This package provides a CUDA backend, for NVIDIA GPUs, built against the
+ vendor version of the NVIDIA CUDA toolkit version 13.x.
+ .
+ To use this package, you will also need to add NVIDIA's repository,
+ see /usr/share/doc/ggml-vendor-cuda/README.Debian

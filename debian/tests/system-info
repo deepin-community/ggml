@@ -1,0 +1,13 @@
+#!/bin/sh
+# Temporary "test" just to output data from ci.debian.net
+
+# cgroup v1
+echo /sys/fs/cgroup/cpuset/cpuset.cpus
+cat /sys/fs/cgroup/cpuset/cpuset.cpus 2>/dev/null || true
+echo /sys/fs/cgroup/cpu/cpu.cfs_quota_us
+cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us 2>/dev/null || true
+
+echo /sys/fs/cgroup/cpuset.cpus.effective
+cat /sys/fs/cgroup/cpuset.cpus.effective 2>/dev/null || true
+echo /sys/fs/cgroup/cpu.max
+cat /sys/fs/cgroup/cpu.max 2>/dev/null || true

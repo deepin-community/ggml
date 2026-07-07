@@ -1,0 +1,39 @@
+Source: ggml-cuda
+Section: contrib/libs
+Maintainer: Debian Deep Learning Team <debian-ai@lists.debian.org>
+Uploaders: Christian Kastner <ckk@debian.org>,
+           Mathieu Baudier <mbaudier@argeo.org>,
+Standards-Version: 4.7.4
+Vcs-Browser: https://salsa.debian.org/deeplearning-team/ggml
+Vcs-Git: https://salsa.debian.org/deeplearning-team/ggml.git
+Homepage: https://github.com/ggml-org/ggml
+Build-Depends: cmake,
+               debhelper-compat (= 13),
+               libggml-dev (>= @GGML_DEBIAN_VERSION@),
+               libggml-dev (<< @GGML_DEBIAN_VERSION_PLUS1@~),
+               pkgconf,
+               nvidia-cuda-toolkit-gcc,
+
+Package: libggml0-backend-cuda
+Architecture: amd64 arm64
+Multi-Arch: same
+Depends: libggml0 (>= @GGML_DEBIAN_VERSION@),
+         libggml0 (<< @GGML_DEBIAN_VERSION_PLUS1@~),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Provides: libggml0-backend (= ${binary:Version})
+Description: Tensor library for machine learning - CUDA backend
+ ggml is a tensor library for machine learning with the following features:
+ .
+  * Low-level cross-platform implementation
+  * Integer quantization support
+  * Broad hardware support
+  * Automatic differentiation
+  * ADAM and L-BFGS optimizers
+  * No third-party dependencies
+  * Zero memory allocations during runtime
+ .
+ On Debian, ggml is shipped as a package that depends on one of the CPU or
+ GPU backends.
+ .
+ This package provides the CUDA backend, for NVIDIA GPUs.
