@@ -23,9 +23,17 @@ CMAKE_OPTS  = -DGGML_NATIVE=OFF \
 
 ## CPU ##
 # Build all CPU variants where supported
-ifneq ($(filter $(DEB_HOST_ARCH),amd64 arm64 ppc64el riscv64),)
+ifneq ($(filter $(DEB_HOST_ARCH),amd64 arm64 ppc64el),)
 CMAKE_OPTS += -DGGML_CPU_ALL_VARIANTS=ON
 # Disable all features where all CPU variants are not supported
+else ifeq ($(DEB_HOST_ARCH),riscv64)
+CMAKE_OPTS += -DGGML_RVV=OFF
+CMAKE_OPTS += -DGGML_RV_ZFH=OFF
+CMAKE_OPTS += -DGGML_XTHEADVECTOR=OFF
+CMAKE_OPTS += -DGGML_RV_ZICBOP=OFF
+CMAKE_OPTS += -DGGML_RV_ZIHINTPAUSE=OFF
+CMAKE_OPTS += -DGGML_RV_ZBA=OFF
+CMAKE_OPTS += -DGGML_CPU_RISCV64_SPACEMIT=OFF
 else ifeq ($(DEB_HOST_ARCH),loong64)
 CMAKE_OPTS += -DGGML_LASX=OFF
 else ifeq ($(DEB_HOST_ARCH),s390x)

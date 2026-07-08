@@ -1,3 +1,9 @@
+ggml (0.15.2-1deepin1) unstable; urgency=medium
+
+  * disable rvv
+
+ -- Chang Yang <yangchang@deepin.org>  Wed, 08 Jul 2026 16:52:30 +0800
+
 ggml (0.15.2-1) unstable; urgency=medium
 
   * New upstream version 0.15.2
