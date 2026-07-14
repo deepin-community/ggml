@@ -24,7 +24,7 @@ Last-Update: 2026-02-17
  5 files changed, 87 insertions(+), 9 deletions(-)
 
 diff --git a/src/ggml-cuda/common.cuh b/src/ggml-cuda/common.cuh
-index e6e50e0..1aa5392 100644
+index 290dc4a..b05f781 100644
 --- a/src/ggml-cuda/common.cuh
 +++ b/src/ggml-cuda/common.cuh
 @@ -656,21 +656,25 @@ static __device__ __forceinline__ half ggml_cuda_hmax(const half a, const half b
@@ -67,7 +67,7 @@ index e6e50e0..1aa5392 100644
  
  #if (defined(CUDART_VERSION) && CUDART_VERSION < CUDART_HMASK) || defined(GGML_USE_HIP) || \
 diff --git a/src/ggml-cuda/ggml-cuda.cu b/src/ggml-cuda/ggml-cuda.cu
-index 3d4b5f6..e557946 100644
+index 98816f8..a002c10 100644
 --- a/src/ggml-cuda/ggml-cuda.cu
 +++ b/src/ggml-cuda/ggml-cuda.cu
 @@ -203,6 +203,38 @@ static int ggml_cuda_parse_id(char devName[]) {
@@ -132,7 +132,7 @@ index 8d7c69d..e911be8 100644
          static constexpr __device__ bool supported() {
              return tile<I_, J_, float, DATA_LAYOUT_I_MAJOR_MIRRORED>::supported();
 diff --git a/src/ggml-cuda/vendors/hip.h b/src/ggml-cuda/vendors/hip.h
-index a6115cd..6c0b75d 100644
+index d01f153..59f0671 100644
 --- a/src/ggml-cuda/vendors/hip.h
 +++ b/src/ggml-cuda/vendors/hip.h
 @@ -5,6 +5,12 @@
@@ -165,7 +165,7 @@ index a6115cd..6c0b75d 100644
  #define cublasCreate hipblasCreate
  #define cublasDestroy hipblasDestroy
  #define cublasGemmEx hipblasGemmEx
-@@ -120,7 +135,20 @@
+@@ -121,7 +136,20 @@
  #define cudaStreamNonBlocking hipStreamNonBlocking
  #define cudaStreamPerThread hipStreamPerThread
  #define cudaStreamSynchronize hipStreamSynchronize
@@ -186,7 +186,7 @@ index a6115cd..6c0b75d 100644
  #define cudaGraphExec_t hipGraphExec_t
  #define cudaGraphNode_t hipGraphNode_t
  #define cudaKernelNodeParams hipKernelNodeParams
-@@ -302,3 +330,17 @@ static __device__ __forceinline__ unsigned int __vcmpne4(unsigned int a, unsigne
+@@ -303,3 +331,17 @@ static __device__ __forceinline__ unsigned int __vcmpne4(unsigned int a, unsigne
      }
      return c;
  }
@@ -205,7 +205,7 @@ index a6115cd..6c0b75d 100644
 +}
 +#endif
 diff --git a/src/ggml-hip/CMakeLists.txt b/src/ggml-hip/CMakeLists.txt
-index a7d4e0e..c11a31e 100644
+index 7121193..edd1aaa 100644
 --- a/src/ggml-hip/CMakeLists.txt
 +++ b/src/ggml-hip/CMakeLists.txt
 @@ -51,8 +51,8 @@ if (GGML_HIP_RCCL)
