@@ -1,4 +1,4 @@
 cmake-Add-option-to-install-tests.patch
 Downgrade-ROCm-dependency-to-5.5.patch
 Use-only-CPU-backend-in-build-time-tests.patch
-remove-armv9.patch
+Take-over-some-tests-from-llama.cpp.patch

@@ -14,6 +14,7 @@ libggml-base.so.0 libggml0 #MINVER#
  dequantize_row_mxfp4@Base 0.9.5
  dequantize_row_nvfp4@Base 0.9.8
  dequantize_row_q1_0@Base 0.10.0
+ dequantize_row_q2_0@Base 0.16.0
  dequantize_row_q2_K@Base 0.9.5
  dequantize_row_q3_K@Base 0.9.5
  dequantize_row_q4_0@Base 0.9.5
@@ -639,6 +640,7 @@ libggml-base.so.0 libggml0 #MINVER#
  quantize_mxfp4@Base 0.9.5
  quantize_nvfp4@Base 0.9.8
  quantize_q1_0@Base 0.10.0
+ quantize_q2_0@Base 0.16.0
  quantize_q2_K@Base 0.9.5
  quantize_q3_K@Base 0.9.5
  quantize_q4_0@Base 0.9.5
@@ -657,6 +659,7 @@ libggml-base.so.0 libggml0 #MINVER#
  quantize_row_mxfp4_ref@Base 0.9.5
  quantize_row_nvfp4_ref@Base 0.9.8
  quantize_row_q1_0_ref@Base 0.10.0
+ quantize_row_q2_0_ref@Base 0.16.0
  quantize_row_q2_K_ref@Base 0.9.5
  quantize_row_q3_K_ref@Base 0.9.5
  quantize_row_q4_0_ref@Base 0.9.5

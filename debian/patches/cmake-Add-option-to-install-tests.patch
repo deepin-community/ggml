@@ -9,10 +9,10 @@ Forwarded: not-needed
  2 files changed, 13 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 0406978..49621ba 100644
+index 0470e3e..11ef5b8 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -276,6 +276,7 @@ option(ZENDNN_ROOT                          "ggml: path to ZenDNN installation"
+@@ -275,6 +275,7 @@ option(ZENDNN_ROOT                          "ggml: path to ZenDNN installation"
  
  # extra artifacts
  option(GGML_BUILD_TESTS    "ggml: build tests"    ${GGML_STANDALONE})

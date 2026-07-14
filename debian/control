@@ -34,6 +34,7 @@ Depends: ${misc:Depends},
 Suggests: libggml0-backend-blas,
           libggml0-backend-cuda,
           libggml0-backend-hip,
+          libggml0-backend-rpc,
           libggml0-backend-vulkan,
 Breaks: libggml, libggml0-backend-cpu
 Replaces: libggml, libggml0-backend-cpu
@@ -126,6 +127,31 @@ Description: Tensor library for machine learning - HIP backend
  GPU backends.
  .
  This package provides the HIP backend, for AMD GPUs.
+
+Package: libggml0-backend-rpc
+Architecture: amd64 arm64 loong64 ppc64 ppc64el riscv64 s390x
+Multi-Arch: same
+Depends: libggml0 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Recommends: libopenblas0 | libblis4 | libmkl-rt | libblas3
+Provides: libggml0-backend (= ${binary:Version})
+Build-Profiles: <!pkg.ggml.noblas>
+Description: Tensor library for machine learning - RPC backend
+ ggml is a tensor library for machine learning with the following features:
+ .
+  * Low-level cross-platform implementation
+  * Integer quantization support
+  * Broad hardware support
+  * Automatic differentiation
+  * ADAM and L-BFGS optimizers
+  * No third-party dependencies
+  * Zero memory allocations during runtime
+ .
+ On Debian, ggml is shipped as a package that depends on one of the CPU or
+ GPU backends.
+ .
+ This package provides the RPC backend.
 
 Package: libggml0-backend-vulkan
 Architecture: amd64 arm64 loong64 ppc64 ppc64el riscv64 s390x

@@ -5,6 +5,10 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 # For DEB_VERSION
 include /usr/share/dpkg/pkg-info.mk
 
+# Needed by CMake when ccache is installed, otherwise CMake's resolution of
+# CUDA toolkit root gets confused, and configuration aborts
+export CUDACXX = /usr/bin/nvcc
+
 
 # GGML_NATIVE:ON corresponds to -march=native
 CMAKE_OPTS  = -DGGML_NATIVE=OFF \
@@ -19,9 +23,6 @@ CMAKE_OPTS  = -DGGML_NATIVE=OFF \
 ## CUDA ##
 CMAKE_OPTS += -DGGML_CPU=OFF \
 	      -DGGML_CUDA=ON
-# Needed by CMake when ccache is installed, otherwise CMake's resolution of
-# CUDA toolkit root gets confused, and configuration aborts
-export CUDACXX = /usr/bin/nvcc
 
 
 %:
