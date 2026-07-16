@@ -1,3 +1,9 @@
+ggml (0.16.0-1deepin1) unstable; urgency=medium
+
+  * disable rvv and armv9
+
+ -- lichenggang <lichenggang@deepin.org>  Thu, 16 Jul 2026 13:40:04 +0800
+
 ggml (0.16.0-1) unstable; urgency=medium
 
   * New upstream version 0.16.0
