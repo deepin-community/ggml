@@ -1,3 +1,9 @@
+ggml (0.16.0-1deepin2) unstable; urgency=medium
+
+  * re-enable rvv and armv9
+
+ -- Chang Yang <yangchang@deepin.org>  Thu, 30 Jul 2026 13:37:58 +0800
+
 ggml (0.16.0-1deepin1) unstable; urgency=medium
 
   * disable rvv and armv9
