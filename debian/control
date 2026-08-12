@@ -11,6 +11,8 @@ Homepage: https://github.com/ggml-org/ggml
 #   see https://lists.debian.org/debian-ai/2025/11/msg00146.html
 Build-Depends: cmake,
                debhelper-compat (= 13),
+               gcc-16,
+               g++-16,
                libblas-dev                                <!pkg.ggml.noblas>,
                pkgconf,
                libvulkan-dev                              <!pkg.ggml.novulkan>,

@@ -3,6 +3,10 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
+# The default compiler (gcc-15) is too old; build with GCC 16 instead.
+export CC = gcc-16
+export CXX = g++-16
+
 # For DEB_VERSION
 include /usr/share/dpkg/pkg-info.mk
 
@@ -22,10 +26,15 @@ CMAKE_OPTS  = -DGGML_NATIVE=OFF \
 #
 
 ## CPU ##
+ifneq ($(filter $(DEB_HOST_ARCH),riscv64),)
+CMAKE_OPTS += -DGGML_CPU_RISCV64_SPACEMIT=ON -DGGML_RV_ZVFH=ON -DGGML_RV_ZFH=ON -DGGML_RV_ZICBOP=ON -DGGML_RV_ZIHINTPAUSE=ON -DGGML_RV_ZBA=ON
+endif
 # Build all CPU variants where supported
-ifneq ($(filter $(DEB_HOST_ARCH),amd64 arm64 ppc64el riscv64),)
+ifneq ($(filter $(DEB_HOST_ARCH),amd64 arm64 ppc64el),)
 CMAKE_OPTS += -DGGML_CPU_ALL_VARIANTS=ON
 # Disable all features where all CPU variants are not supported
+else ifeq ($(DEB_HOST_ARCH),riscv64)
+CMAKE_OPTS += -DGGML_RVV=ON -DGGML_RV_ZFH=ON -DGGML_RV_ZVFH=ON -DGGML_RV_ZVFBFWMA=ON -DGGML_RV_ZICBOP=ON -DGGML_RV_ZIHINTPAUSE=ON -DGGML_RV_ZBA=ON -DGGML_CPU_RISCV64_SPACEMIT=ON
 else ifeq ($(DEB_HOST_ARCH),loong64)
 CMAKE_OPTS += -DGGML_LASX=OFF
 else ifeq ($(DEB_HOST_ARCH),s390x)

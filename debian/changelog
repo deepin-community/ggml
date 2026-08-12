@@ -1,3 +1,10 @@
+ggml (0.16.0-1deepin3) unstable; urgency=medium
+
+  * enable spacemit ime for riscv
+  * use gcc 16 for build
+
+ -- Chang Yang <yangchang@deepin.org>  Wed, 12 Aug 2026 14:01:38 +0800
+
 ggml (0.16.0-1deepin2) unstable; urgency=medium
 
   * re-enable rvv and armv9
